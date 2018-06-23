@@ -84,6 +84,7 @@ void onlineServiceTest()
             std::cout << "Uses " << (u.second.uses_software.has_value() ? (u.second.uses_software->name) : "unknown software") << "\n";
         }
     });
+    service.gameStartup(123456);
     while (true)
     {
         // Somewhere in game loop

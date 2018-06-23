@@ -82,7 +82,7 @@ public:
     void processPendingCalls();
 protected:
     using callback_type = std::function<void(ApiCallResult, HttpResponse&)>;
-    using pair_type = std::pair<NonBlockingHttpRequest, callback_type>;
+    using pair_type = std::pair<std::unique_ptr<NonBlockingHttpRequest>, callback_type>;
  
     void makeRequest(HttpRequest rq, callback_type callback);
     static ApiCallResult resultFromStatus(int status);

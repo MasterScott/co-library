@@ -163,16 +163,18 @@ NonBlockingHttpRequest::NonBlockingHttpRequest(const HttpRequest& request)
     this->request = request.serialize();
     port = request.port;
     host = request.host;
+
+    send();
 }
 
 void NonBlockingHttpRequest::send()
 {
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock < 0)
-        throw new std::runtime_error("Failed to open the socket: " + std::to_string(errno));
+        throw std::runtime_error("Failed to open the socket: " + std::to_string(errno));
     hostent *host = gethostbyname(this->host.c_str());
     if (host == nullptr)
-        throw new std::runtime_error("Failed to locate the host: " + std::to_string(errno));
+        throw std::runtime_error("Failed to locate the host: " + std::to_string(errno));
     sockaddr_in server;
     memset(&server, 0, sizeof(server));
     server.sin_family = AF_INET;
@@ -180,7 +182,7 @@ void NonBlockingHttpRequest::send()
     memcpy(&server.sin_addr.s_addr, host->h_addr_list[0], host->h_length);
 
     if (connect(sock, (sockaddr *)&server, sizeof(server)) < 0)
-        throw new std::runtime_error("Could not connect to server: " + std::to_string(errno));
+        throw std::runtime_error("Could not connect to server: " + std::to_string(errno));
 
     int sent = 0;
     int total = request.size();
@@ -188,7 +190,7 @@ void NonBlockingHttpRequest::send()
     {
         int s = write(sock, request.data() + sent, total - sent);
         if (s < 0)
-            throw new std::runtime_error("Could not write to socket: " + std::to_string(errno));
+            throw std::runtime_error("Could not write to socket: " + std::to_string(errno));
         if (s == 0)
             break;
         sent += s;
@@ -214,7 +216,7 @@ bool NonBlockingHttpRequest::update()
             if (errno == EAGAIN)
                 return false;
             else
-                throw new std::runtime_error("Could not read from socket: " + std::to_string(errno));
+                throw std::runtime_error("Could not read from socket: " + std::to_string(errno));
         }
         if (r == 0)
         {

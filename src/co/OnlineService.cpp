@@ -53,9 +53,7 @@ logged_in_user::logged_in_user(const nlohmann::json& json)
 
 void OnlineService::makeRequest(HttpRequest rq, callback_type callback)
 {
-    auto p = std::make_pair(NonBlockingHttpRequest{ rq }, callback);
-    p.first.send();
-    pendingCalls.push_back(std::move(p));
+    pendingCalls.emplace_back(std::make_unique<NonBlockingHttpRequest>(rq), std::move(callback));
 }
 
 void OnlineService::processPendingCalls()
@@ -63,18 +61,16 @@ void OnlineService::processPendingCalls()
     if (pendingCalls.empty())
         return;
 
-    for (auto it = pendingCalls.begin(); it != pendingCalls.end();)
+    for (auto i = 0u; i < pendingCalls.size(); ++i)
     {
-        if ((*it).first.update())
+        if (pendingCalls[i].first->update())
         {
-            auto response = (*it).first.getResponse();
+            auto response = pendingCalls[i].first->getResponse();
             ApiCallResult result = resultFromStatus(response.getStatus());
-            (*it).second(result, response);
-            it = pendingCalls.erase(it);
-        }
-        else
-        {
-            ++it;
+            if (pendingCalls[i].second)
+                pendingCalls[i].second(result, response);
+            pendingCalls.erase(pendingCalls.begin() + i);
+            --i;
         }
     }
 }
@@ -168,6 +164,15 @@ void OnlineService::userIdentify(const std::vector<unsigned>& steamIdList, std::
             callback(result, std::nullopt);
         }
     });
+}
+
+void OnlineService::gameStartup(unsigned steamId)
+{
+    UrlEncodedBody query{};
+    query.add("key", api_key);
+    query.add("steam", std::to_string(steamId));
+    HttpRequest request("POST", host_address, host_port, "/game/startup", query);
+    makeRequest(request, [](ApiCallResult result, HttpResponse& response) {});
 }
 
 }
