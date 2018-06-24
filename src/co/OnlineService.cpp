@@ -27,7 +27,7 @@ identified_user::identified_user(const nlohmann::json& json)
         color = std::nullopt;
     else
         color = json["color"].get<std::string>();
-    for (auto& e: json["roles"])
+    for (auto& e: json["groups"])
     {
         groups.emplace_back(e);
     }
