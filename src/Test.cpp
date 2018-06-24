@@ -67,7 +67,7 @@ void onlineServiceTest()
         else
             std::cout << "Error logging in\n";
     });
-    service.userIdentify({ 123456 }, [](co::ApiCallResult result, std::optional<co::identified_group> group) {
+    service.userIdentify({ 123456 }, [](co::ApiCallResult result, std::optional<co::identified_user_group> group) {
         if (!group.has_value())
         {
             std::cout << "Error while identifying users..\n";
