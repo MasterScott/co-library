@@ -25,9 +25,9 @@ enum class ApiCallResult
     UNKNOWN
 };
 
-struct role
+struct group
 {
-    role(const nlohmann::json&);
+    group(const nlohmann::json&);
 
     std::string name;
     std::optional<std::string> display_name;
@@ -48,13 +48,13 @@ struct identified_user
     std::string username;
     bool steamid_verified;
     std::optional<std::string> color;
-    std::vector<role> roles;
+    std::vector<group> groups;
     std::optional<software> uses_software;
 };
 
-struct identified_group
+struct identified_user_group
 {
-    identified_group(const nlohmann::json&);
+    identified_user_group(const nlohmann::json&);
 
     std::unordered_map<unsigned, identified_user> users{};
 };
@@ -77,7 +77,7 @@ public:
     void login(std::string key, std::function<void(ApiCallResult, std::optional<logged_in_user>)> callback);
 
     void gameStartup(unsigned steamId);
-    void userIdentify(const std::vector<unsigned>& steamIdList, std::function<void(ApiCallResult, std::optional<identified_group>)> callback);
+    void userIdentify(const std::vector<unsigned>& steamIdList, std::function<void(ApiCallResult, std::optional<identified_user_group>)> callback);
 
     void processPendingCalls();
 protected:

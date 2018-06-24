@@ -76,8 +76,8 @@ void onlineServiceTest()
         for (auto& u: group->users)
         {
             std::cout << "Steam3: " << u.first << ": " << u.second.username << "\n";
-            std::cout << "Roles: \n";
-            for (auto& r: u.second.roles)
+            std::cout << "Groups: \n";
+            for (auto& r: u.second.groups)
             {
                 std::cout << '\t' << r.name << " (" << (r.display_name.has_value() ? *r.display_name : "<none>") << ")\n";
             }

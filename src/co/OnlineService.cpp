@@ -4,7 +4,7 @@
 namespace co
 {
 
-role::role(const nlohmann::json& json)
+group::group(const nlohmann::json& json)
 {
     name = json["name"].get<std::string>();
     if (json["display"].is_null())
@@ -29,7 +29,7 @@ identified_user::identified_user(const nlohmann::json& json)
         color = json["color"].get<std::string>();
     for (auto& e: json["roles"])
     {
-        roles.emplace_back(e);
+        groups.emplace_back(e);
     }
     if (json["software"].is_null())
         uses_software = std::nullopt;
@@ -37,7 +37,7 @@ identified_user::identified_user(const nlohmann::json& json)
         uses_software = co::software{ json["software"] };
 }
 
-identified_group::identified_group(const nlohmann::json& json)
+identified_user_group::identified_user_group(const nlohmann::json& json)
 {
     for (auto it = json.begin(); it != json.end(); ++it)
     {
@@ -136,7 +136,7 @@ void OnlineService::login(std::string key, std::function<void(ApiCallResult, std
     });
 }
 
-void OnlineService::userIdentify(const std::vector<unsigned>& steamIdList, std::function<void(ApiCallResult, std::optional<identified_group>)> callback)
+void OnlineService::userIdentify(const std::vector<unsigned>& steamIdList, std::function<void(ApiCallResult, std::optional<identified_user_group>)> callback)
 {
     std::ostringstream stream{};
     bool first{ true };
@@ -157,7 +157,7 @@ void OnlineService::userIdentify(const std::vector<unsigned>& steamIdList, std::
         if (result == ApiCallResult::OK)
         {
             auto json = nlohmann::json::parse(response.getBody());
-            callback(result, std::make_optional<identified_group>(json));
+            callback(result, std::make_optional<identified_user_group>(json));
         }
         else
         {
