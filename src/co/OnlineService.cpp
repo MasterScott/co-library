@@ -41,7 +41,12 @@ identified_user_group::identified_user_group(const nlohmann::json& json)
 {
     for (auto it = json.begin(); it != json.end(); ++it)
     {
-        unsigned steamId = std::stoul(it.key());
+        unsigned steamId;
+        try {
+            steamId = std::stoul(it.key());
+        } catch (std::invalid_argument) {
+            return;
+        }
         users.emplace(steamId, identified_user{ it.value() });
     }
 }
