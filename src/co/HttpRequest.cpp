@@ -6,16 +6,16 @@
 #include <stdio.h>
 #include <cstdlib>
 #include <unistd.h>
-#include <cstring> 
+#include <cstring>
 #include <sys/socket.h>
-#include <netinet/in.h> 
+#include <netinet/in.h>
 #include <netdb.h>
 #include <fcntl.h>
 
 namespace co
 {
 
-HttpResponse::HttpResponse(const std::vector<char>& data)
+HttpResponse::HttpResponse(const std::vector<char> &data)
 {
     std::ostringstream message{};
 
@@ -28,8 +28,8 @@ HttpResponse::HttpResponse(const std::vector<char>& data)
             {
                 body = std::string(data.begin() + i + 2, data.end());
                 return;
-            } 
-            else 
+            }
+            else
             {
                 if (!got_status)
                 {
@@ -51,10 +51,10 @@ HttpResponse::HttpResponse(const std::vector<char>& data)
     }
 }
 
-std::string HttpResponse::getHeader(const std::string& key) const
+std::string HttpResponse::getHeader(const std::string &key) const
 {
     std::string key_lower = key;
-    for (auto& i: key_lower)
+    for (auto &i : key_lower)
         i = std::tolower(i);
     if (headers.find(key_lower) == headers.end())
         return "";
@@ -80,27 +80,27 @@ void HttpResponse::parseStatus(std::string message)
 }
 
 void HttpResponse::parseHeader(std::string message)
-{   
+{
     std::string key;
     std::string value;
 
     auto colon = message.find(':');
     if (colon == std::string::npos)
         throw new std::runtime_error("Malformed header");
-    key = message.substr(0, colon);
+    key        = message.substr(0, colon);
     auto start = message.find_first_not_of(' ', colon + 1);
     if (start == std::string::npos)
         value = "";
     else
         value = message.substr(start);
 
-    for (char& c: key)
+    for (char &c : key)
         c = std::tolower(c);
 
     headers[key] = value;
 }
 
-void UrlEncodedBody::add(const std::string& key, const std::string& value)
+void UrlEncodedBody::add(const std::string &key, const std::string &value)
 {
     pairs.push_back(std::make_pair(key, value));
 }
@@ -109,7 +109,7 @@ UrlEncodedBody::operator std::string() const
 {
     std::ostringstream stream{};
     bool first{ true };
-    for (const auto& p: pairs)
+    for (const auto &p : pairs)
     {
         if (!first)
             stream << '&';
@@ -127,12 +127,12 @@ HttpRequest::HttpRequest(std::string method, std::string host, int port, std::st
     addHeader("Host", port == 80 ? host : host + ":" + std::to_string(port));
 }
 
-void HttpRequest::addHeader(const std::string& key, const std::string& value)
+void HttpRequest::addHeader(const std::string &key, const std::string &value)
 {
     headers[key] = value;
 }
 
-void HttpRequest::setBody(const std::string& body)
+void HttpRequest::setBody(const std::string &body)
 {
     addHeader("Content-Length", std::to_string(body.size()));
     this->body = body;
@@ -146,23 +146,24 @@ std::vector<char> HttpRequest::serialize() const
     if (query.size())
         stream << '?' << query;
     stream << " HTTP/1.0\r\n";
-    for (const auto& p: headers)
+    for (const auto &p : headers)
     {
         stream << p.first << ": " << p.second << "\r\n";
     }
-    
-    stream << "\r\n" << body;
+
+    stream << "\r\n"
+           << body;
 
     std::string result = stream.str();
 
     return std::vector<char>(result.begin(), result.end());
 }
 
-NonBlockingHttpRequest::NonBlockingHttpRequest(const HttpRequest& request)
+NonBlockingHttpRequest::NonBlockingHttpRequest(const HttpRequest &request)
 {
     this->request = request.serialize();
-    port = request.port;
-    host = request.host;
+    port          = request.port;
+    host          = request.host;
 
     send();
 }
@@ -178,13 +179,13 @@ void NonBlockingHttpRequest::send()
     sockaddr_in server;
     memset(&server, 0, sizeof(server));
     server.sin_family = AF_INET;
-    server.sin_port = htons(port);
+    server.sin_port   = htons(port);
     memcpy(&server.sin_addr.s_addr, host->h_addr_list[0], host->h_length);
 
-    if (connect(sock, (sockaddr *)&server, sizeof(server)) < 0)
+    if (connect(sock, (sockaddr *) &server, sizeof(server)) < 0)
         throw std::runtime_error("Could not connect to server: " + std::to_string(errno));
 
-    int sent = 0;
+    int sent  = 0;
     int total = request.size();
     do
     {
@@ -232,4 +233,4 @@ HttpResponse NonBlockingHttpRequest::getResponse()
     return HttpResponse(std::vector<char>(response.begin(), response.begin() + received));
 }
 
-}
+} // namespace co

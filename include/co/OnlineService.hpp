@@ -27,7 +27,7 @@ enum class ApiCallResult
 
 struct group
 {
-    group(const nlohmann::json&);
+    group(const nlohmann::json &);
 
     std::string name;
     std::optional<std::string> display_name;
@@ -35,7 +35,7 @@ struct group
 
 struct software
 {
-    software(const nlohmann::json&);
+    software(const nlohmann::json &);
 
     std::string name;
     bool friendly;
@@ -43,7 +43,7 @@ struct software
 
 struct identified_user
 {
-    identified_user(const nlohmann::json&);
+    identified_user(const nlohmann::json &);
 
     std::string username;
     bool steamid_verified;
@@ -54,14 +54,14 @@ struct identified_user
 
 struct identified_user_group
 {
-    identified_user_group(const nlohmann::json&);
+    identified_user_group(const nlohmann::json &);
 
     std::unordered_map<unsigned, identified_user> users{};
 };
 
 struct logged_in_user
 {
-    logged_in_user(const nlohmann::json&);
+    logged_in_user(const nlohmann::json &);
 
     std::string username;
 };
@@ -77,13 +77,14 @@ public:
     void login(std::string key, std::function<void(ApiCallResult, std::optional<logged_in_user>)> callback);
 
     void gameStartup(unsigned steamId);
-    void userIdentify(const std::vector<unsigned>& steamIdList, std::function<void(ApiCallResult, std::optional<identified_user_group>)> callback);
+    void userIdentify(const std::vector<unsigned> &steamIdList, std::function<void(ApiCallResult, std::optional<identified_user_group>)> callback);
 
     void processPendingCalls();
+
 protected:
-    using callback_type = std::function<void(ApiCallResult, HttpResponse&)>;
-    using pair_type = std::pair<std::unique_ptr<NonBlockingHttpRequest>, callback_type>;
- 
+    using callback_type = std::function<void(ApiCallResult, HttpResponse &)>;
+    using pair_type     = std::pair<std::unique_ptr<NonBlockingHttpRequest>, callback_type>;
+
     void makeRequest(HttpRequest rq, callback_type callback);
     static ApiCallResult resultFromStatus(int status);
     void error(std::string message);
@@ -98,4 +99,4 @@ protected:
     error_handler_type error_handler{ nullptr };
 };
 
-}
+} // namespace co

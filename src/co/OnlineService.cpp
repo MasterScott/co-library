@@ -4,7 +4,7 @@
 namespace co
 {
 
-group::group(const nlohmann::json& json)
+group::group(const nlohmann::json &json)
 {
     name = json["name"].get<std::string>();
     if (json["display"].is_null())
@@ -13,21 +13,21 @@ group::group(const nlohmann::json& json)
         display_name = json["display"].get<std::string>();
 }
 
-software::software(const nlohmann::json& json)
+software::software(const nlohmann::json &json)
 {
-    name = json["name"].get<std::string>();
+    name     = json["name"].get<std::string>();
     friendly = json["friendly"].get<bool>();
 }
 
-identified_user::identified_user(const nlohmann::json& json)
+identified_user::identified_user(const nlohmann::json &json)
 {
-    username = json["username"].get<std::string>();
+    username         = json["username"].get<std::string>();
     steamid_verified = json["verified"].get<bool>();
     if (json["color"].is_null())
         color = std::nullopt;
     else
         color = json["color"].get<std::string>();
-    for (auto& e: json["groups"])
+    for (auto &e : json["groups"])
     {
         groups.emplace_back(e);
     }
@@ -37,21 +37,24 @@ identified_user::identified_user(const nlohmann::json& json)
         uses_software = co::software{ json["software"] };
 }
 
-identified_user_group::identified_user_group(const nlohmann::json& json)
+identified_user_group::identified_user_group(const nlohmann::json &json)
 {
     for (auto it = json.begin(); it != json.end(); ++it)
     {
         unsigned steamId;
-        try {
+        try
+        {
             steamId = std::stoul(it.key());
-        } catch (std::invalid_argument) {
+        }
+        catch (std::invalid_argument)
+        {
             return;
         }
         users.emplace(steamId, identified_user{ it.value() });
     }
 }
 
-logged_in_user::logged_in_user(const nlohmann::json& json)
+logged_in_user::logged_in_user(const nlohmann::json &json)
 {
     username = json["username"].get<std::string>();
 }
@@ -70,7 +73,7 @@ void OnlineService::processPendingCalls()
     {
         if (pendingCalls[i].first->update())
         {
-            auto response = pendingCalls[i].first->getResponse();
+            auto response        = pendingCalls[i].first->getResponse();
             ApiCallResult result = resultFromStatus(response.getStatus());
             if (pendingCalls[i].second)
                 pendingCalls[i].second(result, response);
@@ -130,22 +133,22 @@ void OnlineService::login(std::string key, std::function<void(ApiCallResult, std
     body.add("key", key);
     HttpRequest request("GET", host_address, host_port, "/user/me", body);
     api_key = key;
-    makeRequest(request, [this, callback](ApiCallResult result, HttpResponse& response) {
+    makeRequest(request, [this, callback](ApiCallResult result, HttpResponse &response) {
         std::optional<logged_in_user> user = std::nullopt;
         if (result == ApiCallResult::OK)
         {
             auto j = nlohmann::json::parse(response.getBody());
-            user = logged_in_user{j};
+            user   = logged_in_user{ j };
         }
         callback(result, user);
     });
 }
 
-void OnlineService::userIdentify(const std::vector<unsigned>& steamIdList, std::function<void(ApiCallResult, std::optional<identified_user_group>)> callback)
+void OnlineService::userIdentify(const std::vector<unsigned> &steamIdList, std::function<void(ApiCallResult, std::optional<identified_user_group>)> callback)
 {
     std::ostringstream stream{};
     bool first{ true };
-    for (auto& i: steamIdList)
+    for (auto &i : steamIdList)
     {
         if (!first)
             stream << ',';
@@ -158,7 +161,7 @@ void OnlineService::userIdentify(const std::vector<unsigned>& steamIdList, std::
     query.add("key", api_key);
     query.add("ids", stream.str());
     HttpRequest request("GET", host_address, host_port, "/game/identify", query);
-    makeRequest(request, [callback](ApiCallResult result, HttpResponse& response) {
+    makeRequest(request, [callback](ApiCallResult result, HttpResponse &response) {
         if (result == ApiCallResult::OK)
         {
             auto json = nlohmann::json::parse(response.getBody());
@@ -177,7 +180,7 @@ void OnlineService::gameStartup(unsigned steamId)
     query.add("key", api_key);
     query.add("steam", std::to_string(steamId));
     HttpRequest request("POST", host_address, host_port, "/game/startup", query);
-    makeRequest(request, [](ApiCallResult result, HttpResponse& response) {});
+    makeRequest(request, [](ApiCallResult result, HttpResponse &response) {});
 }
 
-}
+} // namespace co

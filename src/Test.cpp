@@ -28,7 +28,7 @@ void queryStringTest()
 
 void requestSerializeTest()
 {
-    std::cout << "HTTP REQUEST PARSING TEST\n";    
+    std::cout << "HTTP REQUEST PARSING TEST\n";
     co::HttpRequest rq("POST", "localhost", 8000, "/testing url", "E=E");
     rq.addHeader("Content-Type", "application/json");
     rq.setBody("{\"test\":true}");
@@ -42,13 +42,17 @@ void httpRequestTest()
 
     co::HttpRequest rq("GET", "nullifiedcat.xyz", 80, "/", "");
     co::NonBlockingHttpRequest nrq(rq);
-    try {
+    try
+    {
         nrq.send();
-        while (!nrq.update());
+        while (!nrq.update())
+            ;
         auto response = nrq.getResponse();
-        std::cout << "Got response: " << response.getStatus() << "\n" << response.getBody() << "\n";
+        std::cout << "Got response: " << response.getStatus() << "\n"
+                  << response.getBody() << "\n";
         std::cout << "Date: " << response.getHeader("Date") << '\n';
-    } catch (std::exception& e)
+    }
+    catch (std::exception &e)
     {
         std::cout << "Error: " << e.what() << "\n";
     }
@@ -73,11 +77,11 @@ void onlineServiceTest()
             std::cout << "Error while identifying users..\n";
             return;
         }
-        for (auto& u: group->users)
+        for (auto &u : group->users)
         {
             std::cout << "Steam3: " << u.first << ": " << u.second.username << "\n";
             std::cout << "Groups: \n";
-            for (auto& r: u.second.groups)
+            for (auto &r : u.second.groups)
             {
                 std::cout << '\t' << r.name << " (" << (r.display_name.has_value() ? *r.display_name : "<none>") << ")\n";
             }

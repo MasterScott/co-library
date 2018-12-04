@@ -17,11 +17,11 @@ unsigned char hexToChar(char i)
 namespace co
 {
 
-std::string urlEncode(const std::string& input)
+std::string urlEncode(const std::string &input)
 {
     std::ostringstream stream{};
 
-    for (auto i: input)
+    for (auto i : input)
     {
         if (std::isalnum(i) || i == '-' || i == '_' || i == '.' || i == '~')
             stream << i;
@@ -32,7 +32,7 @@ std::string urlEncode(const std::string& input)
     return stream.str();
 }
 
-std::string urlDecode(const std::string& input)
+std::string urlDecode(const std::string &input)
 {
     std::ostringstream stream{};
     std::istringstream inputStream{ input };
@@ -59,4 +59,4 @@ std::string urlDecode(const std::string& input)
     return stream.str();
 }
 
-}
+} // namespace co
