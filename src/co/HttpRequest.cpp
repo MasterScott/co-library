@@ -121,8 +121,7 @@ UrlEncodedBody::operator std::string() const
     return stream.str();
 }
 
-HttpRequest::HttpRequest(std::string method, std::string host, int port, std::string path, std::string query)
-    : method(method), host(host), port(port), address(path), query(query)
+HttpRequest::HttpRequest(std::string method, std::string host, int port, std::string path, std::string query) : method(method), host(host), port(port), address(path), query(query)
 {
     addHeader("Host", port == 80 ? host : host + ":" + std::to_string(port));
 }
@@ -151,8 +150,7 @@ std::vector<char> HttpRequest::serialize() const
         stream << p.first << ": " << p.second << "\r\n";
     }
 
-    stream << "\r\n"
-           << body;
+    stream << "\r\n" << body;
 
     std::string result = stream.str();
 

@@ -21,7 +21,7 @@ void queryStringTest()
 
     co::UrlEncodedBody body{};
     body.add("test", "testing");
-    //body.add("testing key", "! TESTING VALUE ***");
+    // body.add("testing key", "! TESTING VALUE ***");
     body.add("=", "&");
     std::cout << std::string(body) << '\n';
 }
@@ -48,8 +48,7 @@ void httpRequestTest()
         while (!nrq.update())
             ;
         auto response = nrq.getResponse();
-        std::cout << "Got response: " << response.getStatus() << "\n"
-                  << response.getBody() << "\n";
+        std::cout << "Got response: " << response.getStatus() << "\n" << response.getBody() << "\n";
         std::cout << "Date: " << response.getHeader("Date") << '\n';
     }
     catch (std::exception &e)
@@ -62,9 +61,7 @@ void onlineServiceTest()
 {
     co::OnlineService service{};
     service.setHost("localhost:8000");
-    service.setErrorHandler([](std::string error) {
-        std::cout << "API Error: " << error << '\n';
-    });
+    service.setErrorHandler([](std::string error) { std::cout << "API Error: " << error << '\n'; });
     service.login("6b649dee81a4e2ae733eb7cd3be460d5", [](co::ApiCallResult result, std::optional<co::logged_in_user> user) {
         if (user.has_value())
             std::cout << "Logged in as " << user->username << '\n';
